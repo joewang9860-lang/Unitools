@@ -1,3 +1,4 @@
 <Solution>
-  <Project Path="UniTools/Rabate.csproj" />
+  <Project Path="Commission/Commission.csproj" Id="221b3865-ebc1-4799-9225-72f621d5668d" />
+  <Project Path="Rebate/Rabate.csproj" />
 </Solution>
