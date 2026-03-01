@@ -198,6 +198,15 @@ PublishScripts/
 *.snupkg
 # The packages folder can be ignored because of Package Restore
 **/[Pp]ackages/*
+
+# Ignore UniTools input and output folders (contain user data and generated files)
+# Ignore UniTools input and output folders (contain user data and generated files)
+/UniTools/input/
+/UniTools/output/
+
+# Ignore input/output folders in any project
+**/input/
+**/output/
 # except build/, which is used as an MSBuild target.
 !**/[Pp]ackages/build/
 # Uncomment if necessary however generally it will be regenerated when needed
