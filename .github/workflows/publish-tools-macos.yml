@@ -1,0 +1,89 @@
+name: Publish tools for macOS
+
+on:
+  push:
+    # Prevent triggering on changes made to tools/ by this workflow
+    paths-ignore:
+      - 'tools/**'
+
+# Allow this workflow to push the generated tools back to the repository
+permissions:
+  contents: write
+
+jobs:
+  publish-macos:
+    name: Publish macOS executables and add to tools/
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore and build
+        shell: bash
+        run: |
+          dotnet --info
+          dotnet restore
+
+      - name: Publish projects for macOS (osx-x64)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tools
+          # Find all project files excluding obj/bin and tools
+          mapfile -t projects < <(find . -maxdepth 3 -name '*.csproj' -not -path './tools/*' -not -path '*/obj/*' -not -path '*/bin/*' | sort)
+          echo "Found projects: ${projects[*]}"
+          for proj in "${projects[@]}"; do
+            pname=$(basename "$proj" .csproj)
+            echo "Publishing project: $proj -> tools/$pname"
+            rm -rf "tools/$pname"
+            mkdir -p "tools/$pname"
+            dotnet publish "$proj" -c Release -r osx-x64 -f net10.0 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o "tools/$pname"
+
+            # Ensure a README for the tool
+            # Prefer project-level README.md, then sibling folder README.md, otherwise generate one
+            projdir=$(dirname "$proj")
+            if [ -f "$projdir/README.md" ]; then
+              cp "$projdir/README.md" "tools/$pname/"
+            elif [ -f "$pname/README.md" ]; then
+              cp "$pname/README.md" "tools/$pname/"
+            else
+              cat > "tools/$pname/README.md" <<EOF
+# $pname
+
+This folder contains the macOS self-contained single-file executable for the `$pname` project.
+
+Built by GitHub Actions on push. To run locally on macOS:
+
+1. Download the executable from this repository.
+2. Make it executable: `chmod +x $pname`
+3. Run: `./$pname`
+
+If you need a different runtime (arm64) or a non-single-file publish, adjust the workflow.
+EOF
+            fi
+          done
+
+      - name: Commit and push tools/
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tools || true
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "chore: publish macOS tools [skip ci]"
+            git push
+          else
+            echo "No changes to commit"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
