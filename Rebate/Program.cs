@@ -9,9 +9,10 @@ class Program
 {
     // Paths are resolved relative to the running executable so the app works
     // whether run from IDE, dotnet run, or as a published executable.
-    // Place input/output next to the project file (same level as Program.cs in the project)
-    static string InputDir => Path.Combine(FindProjectDirectory(), "input");
-    static string OutputDir => Path.Combine(FindProjectDirectory(), "output");
+    // Input/output folders are placed next to the running executable so each
+    // published tool has its own `input` and `output` directories alongside the exe.
+    static string InputDir => Path.Combine(AppContext.BaseDirectory, "input");
+    static string OutputDir => Path.Combine(AppContext.BaseDirectory, "output");
     static string salesExcelPath => Path.Combine(InputDir, "SalesData.xlsx");
     // Output files will be created under an output subfolder per company and timestamp.
 
