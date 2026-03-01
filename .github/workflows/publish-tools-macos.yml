@@ -38,9 +38,12 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p tools
-          # Find all project files excluding obj/bin and tools
-          mapfile -t projects < <(find . -maxdepth 3 -name '*.csproj' -not -path './tools/*' -not -path '*/obj/*' -not -path '*/bin/*' | sort)
-          echo "Found projects: ${projects[*]}"
+          # Find all project files excluding obj/bin and tools (avoid bash-only 'mapfile' on macOS runners)
+          projects=()
+          while IFS= read -r -d '' proj; do
+            projects+=("$proj")
+          done < <(find . -maxdepth 3 -name '*.csproj' -not -path './tools/*' -not -path '*/obj/*' -not -path '*/bin/*' -print0)
+          echo "Found ${#projects[@]} projects"
           for proj in "${projects[@]}"; do
             pname=$(basename "$proj" .csproj)
             echo "Publishing project: $proj -> tools/$pname"
