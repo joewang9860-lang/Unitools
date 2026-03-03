@@ -34,6 +34,9 @@ class Program
             return;
         }
 
+        // Show brief user manual before prompting
+        ShowUserManual();
+
         Console.Write("Enter target year-month (yyyyMM) or press Enter for current: ");
         var inputYm = Console.ReadLine()?.Trim();
         string ym;
@@ -407,5 +410,22 @@ class Program
         while (idx < chars.Length && char.IsLetter(chars[idx])) idx++;
         var code = baseName.Substring(0, idx);
         return code;
+    }
+
+    static void ShowUserManual()
+    {
+        Console.WriteLine();
+        var prev = Console.ForegroundColor;
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine("=== COMMISSION TOOL ===");
+        Console.ForegroundColor = prev;
+        Console.WriteLine("User manual:");
+        Console.WriteLine(" - Place the master sales file named 'SalesData.xlsx' into the 'input' folder next to the executable.");
+        Console.WriteLine(" - Add staff input files (Excel .xlsx) into the same 'input' folder. Each staff file should start with the staff code, e.g. 'DMB202601.xlsx'.");
+        Console.WriteLine(" - The program will use configured staff offsets to compute the source month and will produce outputs into the 'output' folder alongside the executable.");
+        Console.WriteLine(" - Output files are named '<StaffCode><yyyyMM>.xlsx' and contain three sheets: 'Sales yyyyMM', 'Unpaid yyyyMM', and 'Outstanding'.");
+        Console.WriteLine(" - Sheet 1 and 2 are taken from SalesData for the target month; sheet 3 is built from staff input unpaid rows (with updates from SalesData).");
+        Console.WriteLine(" - Unpaid rows are highlighted with light orange; rows detected as paid in SalesData are set to 'Paid' and highlighted light green.");
+        Console.WriteLine();
     }
 }
