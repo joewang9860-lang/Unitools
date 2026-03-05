@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="Commission/Commission.csproj" Id="221b3865-ebc1-4799-9225-72f621d5668d" />
+  <Project Path="FileNameOrganizer/FileNameOrganizer.csproj" Id="d7a17c61-2627-4e9a-a9dd-30ec93f65871" />
   <Project Path="Rebate/Rabate.csproj" />
 </Solution>
